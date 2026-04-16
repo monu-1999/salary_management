@@ -230,4 +230,16 @@ function main() {
   }
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  TOTAL_EMPLOYEES,
+  createRandom,
+  pickWeighted,
+  readNameList,
+  ensureSchema,
+  seedEmployees,
+  main,
+};
