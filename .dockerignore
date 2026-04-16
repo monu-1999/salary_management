@@ -1,0 +1,7 @@
+.git
+.next
+node_modules
+coverage
+sqlite/*.db
+sqlite/*.db-shm
+sqlite/*.db-wal
