@@ -9,6 +9,7 @@ A minimal yet production-ready salary management platform for HR teams managing 
 
 ## Core Features
 - Employee CRUD with server-side pagination, filtering, and search.
+- Tab-based workspace (Employee List, Employee Form, Salary Insights, Employee Snapshot).
 - Employee attributes:
   - Full name
   - Email (unique)
@@ -33,8 +34,8 @@ A minimal yet production-ready salary management platform for HR teams managing 
 
 ## Tech Stack
 - Frontend: Next.js 14 + React + TypeScript
-- Backend: Next.js API Routes (Node runtime)
-- Database: SQLite (`better-sqlite3`)
+- Backend: Rails 7 API (`backend/`)
+- Database: SQLite (`sqlite3` in Rails + `better-sqlite3` for seed/test tooling)
 - Validation: `zod`
 - Testing: `vitest`
 
@@ -47,15 +48,22 @@ A minimal yet production-ready salary management platform for HR teams managing 
    ```bash
    npm run seed
    ```
-3. Start app:
+3. Start Rails backend:
    ```bash
+   cd backend
+   bundle install
+   bundle exec rails server -p 3001
+   ```
+4. Start Next.js app (new terminal):
+   ```bash
+   cd ..
    npm run dev
    ```
-4. Run tests:
+5. Run tests:
    ```bash
    npm test
    ```
-5. Production build:
+6. Production build:
    ```bash
    npm run build
    npm run start
@@ -78,6 +86,11 @@ A minimal yet production-ready salary management platform for HR teams managing 
 - `GET /api/insights/country?country=...`
 - `GET /api/insights/job-title?country=...&jobTitle=...`
 - `GET /api/insights/options?country=...`
+
+## URLs To Test
+- Rails API direct: `http://127.0.0.1:3001/api/employees`
+- Next.js app: `http://127.0.0.1:3000`
+- Frontend-to-Rails path: frontend calls `http://127.0.0.1:3000/api/*`, and those routes proxy to Rails on port `3001`.
 
 ## Test Coverage Focus
 - Validation rules and query parsing

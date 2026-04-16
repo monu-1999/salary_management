@@ -1,32 +1,35 @@
 # Planning Notes
 
 ## Problem Framing
-The target user is an HR manager who needs two outcomes:
+The primary user is an HR manager who needs:
 1. Reliable employee administration workflows.
 2. Fast salary insight retrieval for decision-making.
 
-The system should remain responsive with 10,000 employees and support repeated local seeding.
+The app should remain responsive with 10,000 employees and support repeatable local seeding.
 
 ## Implementation Goals
-- Build one deployable full-stack app with a simple local setup.
-- Keep core logic in testable domain modules, independent from route handlers.
-- Prioritize deterministic, fast unit tests over brittle end-to-end tests.
+- Keep frontend and backend independently maintainable.
+- Use Rails API for durable backend behavior and clear service boundaries.
+- Preserve existing frontend API contract through Next.js proxy routes.
+- Keep deterministic seed/test tooling for reproducible local validation.
 
 ## Key Milestones
-1. Scaffold framework and baseline tooling.
-2. Implement schema, repository, and insight service.
-3. Expose validated CRUD and insight APIs.
-4. Build HR-focused UI with pagination/filtering.
-5. Add deterministic seed script and unit tests.
-6. Prepare architecture/tradeoff/performance artifacts.
+1. Build frontend workspace and employee CRUD/insight UX.
+2. Implement deterministic SQLite schema and seed flow.
+3. Migrate backend behavior from Next.js handlers to Rails API.
+4. Add proxy layer (`/api/*`) so UI code remains stable.
+5. Refine UX into tab-based navigation (list first, then form/insights/snapshot).
+6. Refresh artifacts and docs to match deployed architecture.
 
 ## UX Goals
-- Minimize clicks for common HR operations.
-- Keep salary insights visible in the same workspace as CRUD actions.
-- Make filters and form entry obvious and keyboard-friendly.
+- Default to employee list on load.
+- Reduce visual overload by showing one primary workspace section at a time.
+- Auto-route user to the right tab for intent:
+  - `Add` / `Edit` -> form tab.
+  - `View` -> snapshot tab.
 
 ## Risk Mitigation
-- Validation at API boundary using `zod`.
-- Unique email constraint in database.
-- Indexed tables for country/job-title queries.
-- Deterministic seed generation for reproducible local environments.
+- Validation at backend boundary via Rails model validations.
+- Unique email constraint enforced in database and surfaced as `409`.
+- Indexed SQLite schema for country/job-title filtering.
+- API proxy fallback error for Rails unavailability (`502`) to aid debugging.

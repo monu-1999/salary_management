@@ -1,14 +1,23 @@
 # Trade-offs and Decisions
 
-## Why Next.js for both UI and backend
+## Why Next.js frontend + Rails backend
 Pros:
-- Single deployable unit.
-- Shared TypeScript types between client and server.
-- Fast setup with built-in routing.
+- Clear separation of UI and backend responsibility.
+- Rails gives strong API conventions and mature validation/data tooling.
+- Next.js keeps fast developer experience for frontend iteration.
 
 Cons:
-- Tighter coupling than separate frontend/backend services.
-- API scaling is linked to app deployment strategy.
+- Two local processes must run (`3000` + `3001`).
+- Cross-service debugging is slightly more involved than monolith handlers.
+
+## Why keep Next.js API proxy routes
+Pros:
+- Frontend fetch paths stay stable (`/api/*`), no UI URL rewiring.
+- Allows backend host/port switching via config (`RAILS_API_BASE_URL`).
+
+Cons:
+- Adds one extra network hop.
+- Proxy layer introduces another point of failure if misconfigured.
 
 ## Why SQLite
 Pros:
@@ -16,22 +25,22 @@ Pros:
 - Good fit for assignment scope and 10k records.
 
 Cons:
-- Not ideal for highly concurrent write-heavy workloads.
-- Requires migration path for horizontal scaling.
+- Not ideal for heavily concurrent write workloads.
+- Requires migration path for multi-node scaling.
 
-## Why better-sqlite3
+## Why tab-based dashboard UX
 Pros:
-- Fast synchronous API with low overhead.
-- Great for small-to-medium datasets and scripts.
+- Cleaner focus: list-first workflow with lower visual clutter.
+- Intent-based navigation (`Add/Edit/View`) improves task flow.
 
 Cons:
-- Blocking calls in Node process.
-- Less suitable for very high-concurrency multi-instance environments.
+- More clicks for users who prefer seeing all panels simultaneously.
+- Requires state coordination across tabs (selection, form/edit modes).
 
-## Why Unit-test-first core logic
+## Why unit-test-focused validation
 Pros:
 - Fast and stable feedback loop.
-- Easy to reason about correctness for business logic.
+- Strong confidence in deterministic behavior (seed + data logic).
 
 Cons:
 - Does not replace full browser-level interaction tests.

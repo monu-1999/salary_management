@@ -30,6 +30,8 @@ interface OptionsResponse {
   jobTitles: string[];
 }
 
+type DashboardTab = "employees" | "form" | "insights" | "snapshot";
+
 class ApiError extends Error {
   status: number;
 
@@ -132,6 +134,7 @@ export default function SalaryDashboard() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<DashboardTab>("employees");
 
   const selectedInsightCurrency = countryInsights?.currency ?? jobTitleInsights?.currency ?? "USD";
 
@@ -300,7 +303,15 @@ export default function SalaryDashboard() {
     setEditingId(null);
   }
 
+  function startCreating(): void {
+    setMessage(null);
+    resetForm();
+    setActiveTab("form");
+  }
+
   function startEditing(employee: Employee): void {
+    setMessage(null);
+    setActiveTab("form");
     setEditingId(employee.id);
     setForm({
       fullName: employee.fullName,
@@ -314,7 +325,11 @@ export default function SalaryDashboard() {
       status: employee.status,
       hireDate: employee.hireDate,
     });
-    setMessage(`Editing ${employee.fullName}`);
+  }
+
+  function showSnapshot(employee: Employee): void {
+    setSelectedEmployee(employee);
+    setActiveTab("snapshot");
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
@@ -341,6 +356,7 @@ export default function SalaryDashboard() {
 
       resetForm();
       await refreshEmployeesToFirstPage();
+      setActiveTab("employees");
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Failed to save employee");
     } finally {
@@ -394,450 +410,494 @@ export default function SalaryDashboard() {
       {error ? <p className={styles.alertError}>{error}</p> : null}
       {message ? <p className={styles.alertSuccess}>{message}</p> : null}
 
-      <section className={styles.grid}>
-        <article className={`${styles.card} ${styles.spanTwo}`}>
-          <header className={styles.cardHeader}>
-            <h2>Employees</h2>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={() => {
-                resetForm();
-                setMessage("Ready to add a new employee");
-              }}
-            >
-              Add Employee
-            </button>
-          </header>
+      <nav className={styles.tabBar} aria-label="Dashboard Sections">
+        <button
+          type="button"
+          className={`${styles.tabButton} ${activeTab === "employees" ? styles.tabButtonActive : ""}`}
+          onClick={() => setActiveTab("employees")}
+        >
+          Employee List
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabButton} ${activeTab === "form" ? styles.tabButtonActive : ""}`}
+          onClick={() => setActiveTab("form")}
+        >
+          Employee Form
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabButton} ${activeTab === "insights" ? styles.tabButtonActive : ""}`}
+          onClick={() => setActiveTab("insights")}
+        >
+          Salary Insights
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabButton} ${activeTab === "snapshot" ? styles.tabButtonActive : ""}`}
+          onClick={() => setActiveTab("snapshot")}
+        >
+          Employee Snapshot
+        </button>
+      </nav>
 
-          <div className={styles.filters}>
-            <label>
-              Search
-              <input
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-                placeholder="Name, email, department, title"
-              />
-            </label>
+      <section className={styles.tabPanel}>
+        {activeTab === "employees" ? (
+          <article className={styles.card}>
+            <header className={styles.cardHeader}>
+              <h2>Employees</h2>
+              <button type="button" className={styles.secondaryButton} onClick={startCreating}>
+                Add Employee
+              </button>
+            </header>
 
-            <label>
-              Country
-              <select
-                value={countryFilter}
-                onChange={(event) => {
-                  setCountryFilter(event.target.value);
-                  setPagination((current) => ({ ...current, page: 1 }));
-                }}
-              >
-                <option value="">All Countries</option>
-                {countryOptions.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className={styles.filters}>
+              <label>
+                Search
+                <input
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  placeholder="Name, email, department, title"
+                />
+              </label>
 
-            <label>
-              Job Title
-              <select
-                value={jobTitleFilter}
-                onChange={(event) => {
-                  setJobTitleFilter(event.target.value);
-                  setPagination((current) => ({ ...current, page: 1 }));
-                }}
-              >
-                <option value="">All Job Titles</option>
-                {jobTitleOptions.map((jobTitle) => (
-                  <option key={jobTitle} value={jobTitle}>
-                    {jobTitle}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+              <label>
+                Country
+                <select
+                  value={countryFilter}
+                  onChange={(event) => {
+                    setCountryFilter(event.target.value);
+                    setPagination((current) => ({ ...current, page: 1 }));
+                  }}
+                >
+                  <option value="">All Countries</option>
+                  {countryOptions.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Job Title</th>
-                  <th>Country</th>
-                  <th>Salary</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {!isLoading && employees.length === 0 ? (
+              <label>
+                Job Title
+                <select
+                  value={jobTitleFilter}
+                  onChange={(event) => {
+                    setJobTitleFilter(event.target.value);
+                    setPagination((current) => ({ ...current, page: 1 }));
+                  }}
+                >
+                  <option value="">All Job Titles</option>
+                  {jobTitleOptions.map((jobTitle) => (
+                    <option key={jobTitle} value={jobTitle}>
+                      {jobTitle}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
                   <tr>
-                    <td colSpan={6} className={styles.emptyCell}>
-                      No employees match your filters.
-                    </td>
+                    <th>Name</th>
+                    <th>Job Title</th>
+                    <th>Country</th>
+                    <th>Salary</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                   </tr>
-                ) : null}
+                </thead>
+                <tbody>
+                  {!isLoading && employees.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className={styles.emptyCell}>
+                        No employees match your filters.
+                      </td>
+                    </tr>
+                  ) : null}
 
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className={styles.emptyCell}>
-                      Loading employees...
-                    </td>
-                  </tr>
-                ) : null}
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={6} className={styles.emptyCell}>
+                        Loading employees...
+                      </td>
+                    </tr>
+                  ) : null}
 
-                {!isLoading
-                  ? employees.map((employee) => (
-                      <tr key={employee.id}>
-                        <td>{employee.fullName}</td>
-                        <td>{employee.jobTitle}</td>
-                        <td>{employee.country}</td>
-                        <td>{formatMoney(employee.salary, employee.currency)}</td>
-                        <td>{employee.status}</td>
-                        <td>
-                          <div className={styles.actions}>
-                            <button type="button" onClick={() => setSelectedEmployee(employee)}>
-                              View
-                            </button>
-                            <button type="button" onClick={() => startEditing(employee)}>
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.deleteButton}
-                              onClick={() => {
-                                void handleDelete(employee);
-                              }}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  : null}
-              </tbody>
-            </table>
-          </div>
+                  {!isLoading
+                    ? employees.map((employee) => (
+                        <tr key={employee.id}>
+                          <td>{employee.fullName}</td>
+                          <td>{employee.jobTitle}</td>
+                          <td>{employee.country}</td>
+                          <td>{formatMoney(employee.salary, employee.currency)}</td>
+                          <td>{employee.status}</td>
+                          <td>
+                            <div className={styles.actions}>
+                              <button type="button" onClick={() => showSnapshot(employee)}>
+                                View
+                              </button>
+                              <button type="button" onClick={() => startEditing(employee)}>
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.deleteButton}
+                                onClick={() => {
+                                  void handleDelete(employee);
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    : null}
+                </tbody>
+              </table>
+            </div>
 
-          <footer className={styles.pagination}>
-            <span>
-              Page {pagination.page} of {Math.max(1, pagination.totalPages)}
-            </span>
-            <div>
+            <footer className={styles.pagination}>
+              <span>
+                Page {pagination.page} of {Math.max(1, pagination.totalPages)}
+              </span>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setPagination((current) => ({ ...current, page: current.page - 1 }))}
+                  disabled={pagination.page <= 1 || isLoading}
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPagination((current) => ({ ...current, page: current.page + 1 }))}
+                  disabled={
+                    isLoading ||
+                    pagination.totalPages === 0 ||
+                    pagination.page >= Math.max(1, pagination.totalPages)
+                  }
+                >
+                  Next
+                </button>
+              </div>
+            </footer>
+          </article>
+        ) : null}
+
+        {activeTab === "form" ? (
+          <article className={styles.card}>
+            <header className={styles.cardHeader}>
+              <h2>{editingId ? "Update Employee" : "Add Employee"}</h2>
               <button
                 type="button"
-                onClick={() => setPagination((current) => ({ ...current, page: current.page - 1 }))}
-                disabled={pagination.page <= 1 || isLoading}
+                className={styles.secondaryButton}
+                onClick={() => {
+                  resetForm();
+                  setActiveTab("employees");
+                }}
               >
-                Previous
+                {editingId ? "Cancel Edit" : "Back To List"}
               </button>
+            </header>
+
+            <form className={styles.form} onSubmit={(event) => void handleSubmit(event)}>
+              <label>
+                Full Name
+                <input
+                  required
+                  value={form.fullName}
+                  onChange={(event) => updateForm("fullName", event.target.value)}
+                />
+              </label>
+
+              <label>
+                Email
+                <input
+                  required
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => updateForm("email", event.target.value)}
+                />
+              </label>
+
+              <label>
+                Job Title
+                <input
+                  required
+                  value={form.jobTitle}
+                  onChange={(event) => updateForm("jobTitle", event.target.value)}
+                />
+              </label>
+
+              <label>
+                Department
+                <input
+                  required
+                  value={form.department}
+                  onChange={(event) => updateForm("department", event.target.value)}
+                />
+              </label>
+
+              <label>
+                Country
+                <input
+                  list="country-options"
+                  required
+                  value={form.country}
+                  onChange={(event) => updateForm("country", event.target.value)}
+                />
+              </label>
+
+              <datalist id="country-options">
+                {countryOptions.map((country) => (
+                  <option key={country} value={country} />
+                ))}
+              </datalist>
+
+              <label>
+                Salary
+                <input
+                  required
+                  min={1}
+                  type="number"
+                  value={form.salary}
+                  onChange={(event) => updateForm("salary", Number(event.target.value))}
+                />
+              </label>
+
+              <label>
+                Currency
+                <input
+                  required
+                  maxLength={3}
+                  value={form.currency}
+                  onChange={(event) => updateForm("currency", event.target.value.toUpperCase())}
+                />
+              </label>
+
+              <label>
+                Employment Type
+                <select
+                  value={form.employmentType}
+                  onChange={(event) =>
+                    updateForm("employmentType", event.target.value as EmployeeInput["employmentType"])
+                  }
+                >
+                  <option value="Full-time">Full-time</option>
+                  <option value="Part-time">Part-time</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Intern">Intern</option>
+                </select>
+              </label>
+
+              <label>
+                Status
+                <select
+                  value={form.status}
+                  onChange={(event) => updateForm("status", event.target.value as EmployeeInput["status"])}
+                >
+                  <option value="Active">Active</option>
+                  <option value="On Leave">On Leave</option>
+                  <option value="Resigned">Resigned</option>
+                </select>
+              </label>
+
+              <label>
+                Hire Date
+                <input
+                  required
+                  type="date"
+                  value={form.hireDate}
+                  onChange={(event) => updateForm("hireDate", event.target.value)}
+                />
+              </label>
+
+              <button className={styles.primaryButton} type="submit" disabled={isSaving}>
+                {isSaving ? "Saving..." : editingId ? "Update Employee" : "Create Employee"}
+              </button>
+            </form>
+          </article>
+        ) : null}
+
+        {activeTab === "insights" ? (
+          <article className={styles.card}>
+            <header className={styles.cardHeader}>
+              <h2>Salary Insights</h2>
+            </header>
+
+            <div className={styles.insightFilters}>
+              <label>
+                Country
+                <select
+                  value={insightCountry}
+                  onChange={(event) => setInsightCountry(event.target.value)}
+                >
+                  {countryOptions.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                Job Title
+                <select
+                  value={insightJobTitle}
+                  onChange={(event) => setInsightJobTitle(event.target.value)}
+                >
+                  {insightJobTitleOptions.map((jobTitle) => (
+                    <option key={jobTitle} value={jobTitle}>
+                      {jobTitle}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {countryInsights ? (
+              <div className={styles.metricsGrid}>
+                <div>
+                  <p>Headcount</p>
+                  <strong>{new Intl.NumberFormat("en-US").format(countryInsights.headcount)}</strong>
+                </div>
+                <div>
+                  <p>Average Salary</p>
+                  <strong>
+                    {formatMoney(countryInsights.averageSalary, selectedInsightCurrency)}
+                  </strong>
+                </div>
+                <div>
+                  <p>Median Salary</p>
+                  <strong>{formatMoney(countryInsights.medianSalary, selectedInsightCurrency)}</strong>
+                </div>
+                <div>
+                  <p>P90 Salary</p>
+                  <strong>{formatMoney(countryInsights.p90Salary, selectedInsightCurrency)}</strong>
+                </div>
+                <div>
+                  <p>Minimum Salary</p>
+                  <strong>{formatMoney(countryInsights.minSalary, selectedInsightCurrency)}</strong>
+                </div>
+                <div>
+                  <p>Maximum Salary</p>
+                  <strong>{formatMoney(countryInsights.maxSalary, selectedInsightCurrency)}</strong>
+                </div>
+                <div>
+                  <p>Total Payroll</p>
+                  <strong>{formatMoney(countryInsights.totalPayroll, selectedInsightCurrency)}</strong>
+                </div>
+              </div>
+            ) : (
+              <p className={styles.emptyState}>No salary data available for this country.</p>
+            )}
+
+            {jobTitleInsights ? (
+              <div className={styles.jobInsightCard}>
+                <h3>
+                  {jobTitleInsights.jobTitle} in {jobTitleInsights.country}
+                </h3>
+                <p>
+                  Average: {formatMoney(jobTitleInsights.averageSalary, jobTitleInsights.currency)} |
+                  Min: {formatMoney(jobTitleInsights.minSalary, jobTitleInsights.currency)} | Max:{" "}
+                  {formatMoney(jobTitleInsights.maxSalary, jobTitleInsights.currency)} | Employees:{" "}
+                  {new Intl.NumberFormat("en-US").format(jobTitleInsights.headcount)}
+                </p>
+              </div>
+            ) : (
+              <p className={styles.emptyState}>No role-specific salary data available for this selection.</p>
+            )}
+
+            <div className={styles.insightDetailsGrid}>
+              <section>
+                <h3>Top Job Titles by Headcount</h3>
+                <ul>
+                  {countryInsights?.topJobTitles.map((job) => (
+                    <li key={job.jobTitle}>
+                      <span>{job.jobTitle}</span>
+                      <strong>
+                        {job.headcount} employees · {formatMoney(job.averageSalary, selectedInsightCurrency)}
+                      </strong>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section>
+                <h3>Employment Type Distribution</h3>
+                <ul>
+                  {countryInsights?.employmentTypeDistribution.map((entry) => (
+                    <li key={entry.employmentType}>
+                      <span>{entry.employmentType}</span>
+                      <strong>{entry.count}</strong>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </div>
+          </article>
+        ) : null}
+
+        {activeTab === "snapshot" ? (
+          <article className={styles.card}>
+            <header className={styles.cardHeader}>
+              <h2>Employee Snapshot</h2>
               <button
                 type="button"
-                onClick={() => setPagination((current) => ({ ...current, page: current.page + 1 }))}
-                disabled={
-                  isLoading ||
-                  pagination.totalPages === 0 ||
-                  pagination.page >= Math.max(1, pagination.totalPages)
-                }
+                className={styles.secondaryButton}
+                onClick={() => setActiveTab("employees")}
               >
-                Next
+                Back To List
               </button>
-            </div>
-          </footer>
-        </article>
+            </header>
 
-        <article className={styles.card}>
-          <header className={styles.cardHeader}>
-            <h2>{editingId ? "Update Employee" : "Add Employee"}</h2>
-            {editingId ? (
-              <button type="button" className={styles.secondaryButton} onClick={resetForm}>
-                Cancel Edit
-              </button>
-            ) : null}
-          </header>
-
-          <form className={styles.form} onSubmit={(event) => void handleSubmit(event)}>
-            <label>
-              Full Name
-              <input
-                required
-                value={form.fullName}
-                onChange={(event) => updateForm("fullName", event.target.value)}
-              />
-            </label>
-
-            <label>
-              Email
-              <input
-                required
-                type="email"
-                value={form.email}
-                onChange={(event) => updateForm("email", event.target.value)}
-              />
-            </label>
-
-            <label>
-              Job Title
-              <input
-                required
-                value={form.jobTitle}
-                onChange={(event) => updateForm("jobTitle", event.target.value)}
-              />
-            </label>
-
-            <label>
-              Department
-              <input
-                required
-                value={form.department}
-                onChange={(event) => updateForm("department", event.target.value)}
-              />
-            </label>
-
-            <label>
-              Country
-              <input
-                list="country-options"
-                required
-                value={form.country}
-                onChange={(event) => updateForm("country", event.target.value)}
-              />
-            </label>
-
-            <datalist id="country-options">
-              {countryOptions.map((country) => (
-                <option key={country} value={country} />
-              ))}
-            </datalist>
-
-            <label>
-              Salary
-              <input
-                required
-                min={1}
-                type="number"
-                value={form.salary}
-                onChange={(event) => updateForm("salary", Number(event.target.value))}
-              />
-            </label>
-
-            <label>
-              Currency
-              <input
-                required
-                maxLength={3}
-                value={form.currency}
-                onChange={(event) => updateForm("currency", event.target.value.toUpperCase())}
-              />
-            </label>
-
-            <label>
-              Employment Type
-              <select
-                value={form.employmentType}
-                onChange={(event) =>
-                  updateForm("employmentType", event.target.value as EmployeeInput["employmentType"])
-                }
-              >
-                <option value="Full-time">Full-time</option>
-                <option value="Part-time">Part-time</option>
-                <option value="Contract">Contract</option>
-                <option value="Intern">Intern</option>
-              </select>
-            </label>
-
-            <label>
-              Status
-              <select
-                value={form.status}
-                onChange={(event) => updateForm("status", event.target.value as EmployeeInput["status"])}
-              >
-                <option value="Active">Active</option>
-                <option value="On Leave">On Leave</option>
-                <option value="Resigned">Resigned</option>
-              </select>
-            </label>
-
-            <label>
-              Hire Date
-              <input
-                required
-                type="date"
-                value={form.hireDate}
-                onChange={(event) => updateForm("hireDate", event.target.value)}
-              />
-            </label>
-
-            <button className={styles.primaryButton} type="submit" disabled={isSaving}>
-              {isSaving ? "Saving..." : editingId ? "Update Employee" : "Create Employee"}
-            </button>
-          </form>
-        </article>
-
-        <article className={`${styles.card} ${styles.spanTwo}`}>
-          <header className={styles.cardHeader}>
-            <h2>Salary Insights</h2>
-          </header>
-
-          <div className={styles.insightFilters}>
-            <label>
-              Country
-              <select
-                value={insightCountry}
-                onChange={(event) => setInsightCountry(event.target.value)}
-              >
-                {countryOptions.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              Job Title
-              <select
-                value={insightJobTitle}
-                onChange={(event) => setInsightJobTitle(event.target.value)}
-              >
-                {insightJobTitleOptions.map((jobTitle) => (
-                  <option key={jobTitle} value={jobTitle}>
-                    {jobTitle}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          {countryInsights ? (
-            <div className={styles.metricsGrid}>
-              <div>
-                <p>Headcount</p>
-                <strong>{new Intl.NumberFormat("en-US").format(countryInsights.headcount)}</strong>
-              </div>
-              <div>
-                <p>Average Salary</p>
-                <strong>
-                  {formatMoney(countryInsights.averageSalary, selectedInsightCurrency)}
-                </strong>
-              </div>
-              <div>
-                <p>Median Salary</p>
-                <strong>{formatMoney(countryInsights.medianSalary, selectedInsightCurrency)}</strong>
-              </div>
-              <div>
-                <p>P90 Salary</p>
-                <strong>{formatMoney(countryInsights.p90Salary, selectedInsightCurrency)}</strong>
-              </div>
-              <div>
-                <p>Minimum Salary</p>
-                <strong>{formatMoney(countryInsights.minSalary, selectedInsightCurrency)}</strong>
-              </div>
-              <div>
-                <p>Maximum Salary</p>
-                <strong>{formatMoney(countryInsights.maxSalary, selectedInsightCurrency)}</strong>
-              </div>
-              <div>
-                <p>Total Payroll</p>
-                <strong>{formatMoney(countryInsights.totalPayroll, selectedInsightCurrency)}</strong>
-              </div>
-            </div>
-          ) : (
-            <p className={styles.emptyState}>No salary data available for this country.</p>
-          )}
-
-          {jobTitleInsights ? (
-            <div className={styles.jobInsightCard}>
-              <h3>
-                {jobTitleInsights.jobTitle} in {jobTitleInsights.country}
-              </h3>
-              <p>
-                Average: {formatMoney(jobTitleInsights.averageSalary, jobTitleInsights.currency)} |
-                Min: {formatMoney(jobTitleInsights.minSalary, jobTitleInsights.currency)} | Max: {" "}
-                {formatMoney(jobTitleInsights.maxSalary, jobTitleInsights.currency)} | Employees: {" "}
-                {new Intl.NumberFormat("en-US").format(jobTitleInsights.headcount)}
-              </p>
-            </div>
-          ) : (
-            <p className={styles.emptyState}>No role-specific salary data available for this selection.</p>
-          )}
-
-          <div className={styles.insightDetailsGrid}>
-            <section>
-              <h3>Top Job Titles by Headcount</h3>
-              <ul>
-                {countryInsights?.topJobTitles.map((job) => (
-                  <li key={job.jobTitle}>
-                    <span>{job.jobTitle}</span>
-                    <strong>
-                      {job.headcount} employees · {formatMoney(job.averageSalary, selectedInsightCurrency)}
-                    </strong>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section>
-              <h3>Employment Type Distribution</h3>
-              <ul>
-                {countryInsights?.employmentTypeDistribution.map((entry) => (
-                  <li key={entry.employmentType}>
-                    <span>{entry.employmentType}</span>
-                    <strong>{entry.count}</strong>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-        </article>
-
-        <article className={styles.card}>
-          <header className={styles.cardHeader}>
-            <h2>Employee Snapshot</h2>
-          </header>
-
-          {selectedEmployee ? (
-            <dl className={styles.detailList}>
-              <div>
-                <dt>Name</dt>
-                <dd>{selectedEmployee.fullName}</dd>
-              </div>
-              <div>
-                <dt>Email</dt>
-                <dd>{selectedEmployee.email}</dd>
-              </div>
-              <div>
-                <dt>Job</dt>
-                <dd>
-                  {selectedEmployee.jobTitle} ({selectedEmployee.department})
-                </dd>
-              </div>
-              <div>
-                <dt>Location</dt>
-                <dd>{selectedEmployee.country}</dd>
-              </div>
-              <div>
-                <dt>Salary</dt>
-                <dd>{formatMoney(selectedEmployee.salary, selectedEmployee.currency)}</dd>
-              </div>
-              <div>
-                <dt>Employment</dt>
-                <dd>{selectedEmployee.employmentType}</dd>
-              </div>
-              <div>
-                <dt>Status</dt>
-                <dd>{selectedEmployee.status}</dd>
-              </div>
-              <div>
-                <dt>Hire Date</dt>
-                <dd>{selectedEmployee.hireDate}</dd>
-              </div>
-            </dl>
-          ) : (
-            <p className={styles.emptyState}>Choose an employee from the table to view details.</p>
-          )}
-        </article>
+            {selectedEmployee ? (
+              <dl className={styles.detailList}>
+                <div>
+                  <dt>Name</dt>
+                  <dd>{selectedEmployee.fullName}</dd>
+                </div>
+                <div>
+                  <dt>Email</dt>
+                  <dd>{selectedEmployee.email}</dd>
+                </div>
+                <div>
+                  <dt>Job</dt>
+                  <dd>
+                    {selectedEmployee.jobTitle} ({selectedEmployee.department})
+                  </dd>
+                </div>
+                <div>
+                  <dt>Location</dt>
+                  <dd>{selectedEmployee.country}</dd>
+                </div>
+                <div>
+                  <dt>Salary</dt>
+                  <dd>{formatMoney(selectedEmployee.salary, selectedEmployee.currency)}</dd>
+                </div>
+                <div>
+                  <dt>Employment</dt>
+                  <dd>{selectedEmployee.employmentType}</dd>
+                </div>
+                <div>
+                  <dt>Status</dt>
+                  <dd>{selectedEmployee.status}</dd>
+                </div>
+                <div>
+                  <dt>Hire Date</dt>
+                  <dd>{selectedEmployee.hireDate}</dd>
+                </div>
+              </dl>
+            ) : (
+              <p className={styles.emptyState}>Choose an employee from Employee List tab to view details.</p>
+            )}
+          </article>
+        ) : null}
       </section>
     </main>
   );

@@ -67,6 +67,40 @@
   color: #0f5d32;
 }
 
+.tabBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0 0 1rem;
+}
+
+.tabButton {
+  border: 1px solid #bfd4eb;
+  border-radius: 999px;
+  background: #eef5fd;
+  color: #1f3d63;
+  padding: 0.48rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 180ms ease, filter 180ms ease, border-color 180ms ease;
+}
+
+.tabButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.98);
+}
+
+.tabButtonActive {
+  background: linear-gradient(112deg, #0f7a84, #1f4ea3);
+  border-color: transparent;
+  color: #fff;
+}
+
+.tabPanel {
+  display: grid;
+  gap: 1rem;
+}
+
 .grid {
   display: grid;
   gap: 1rem;

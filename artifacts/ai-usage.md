@@ -1,20 +1,25 @@
 # AI Usage Log
 
-AI was used intentionally to accelerate implementation while preserving engineering quality.
+AI was used intentionally to accelerate migration and UI refinement while preserving engineering quality.
 
 ## Areas where AI was used
-- Initial architecture decomposition (domain/repository/API/UI/testing slices).
-- Boilerplate acceleration for route handlers, validation, and UI structure.
-- Test case scaffolding for repository and insight calculations.
-- Documentation drafting for planning and trade-off artifacts.
+- Rails backend scaffolding and endpoint parity implementation.
+- Next.js-to-Rails proxy route conversion.
+- Tab-based dashboard UX refactor (list/form/insights/snapshot).
+- Documentation updates across architecture/tradeoff/performance/demo artifacts.
 
 ## Human verification steps applied
-- Lint, type checks, and production build validation.
-- Runtime seeding verification (`npm run seed`) and insertion count checks.
-- Unit test verification for core logic and deterministic seed behavior.
-- Manual review of API contract and pagination/filter behavior.
+- Lint checks for frontend changes.
+- Rails route validation and endpoint smoke checks.
+- Manual browser checks for tab flow:
+  - `Add` -> form tab
+  - `Edit` -> prefilled form tab
+  - `View` -> snapshot tab
+- API response checks through both:
+  - Rails direct URL (`:3001`)
+  - Next.js proxy URL (`:3000/api/*`)
 
 ## Prompting style used
-- Task-specific prompts with constraints (deterministic tests, no hidden magic).
-- Incremental implementation prompts per layer (backend first, then UI, then tests).
-- Emphasis on correctness, explicit typing, and readable code.
+- Constraint-driven prompts focused on contract compatibility.
+- Incremental migration prompts (backend first, then proxy, then UI restructuring).
+- Explicit requests for non-breaking behavior and clean commit boundaries.
