@@ -96,8 +96,22 @@ export function getCountrySalaryInsights(country: string): CountrySalaryInsights
     count: number;
   }>;
 
+  const dominantCurrency = db
+    .prepare(
+      `
+      SELECT currency
+      FROM employees
+      WHERE country = ?
+      GROUP BY currency
+      ORDER BY COUNT(*) DESC
+      LIMIT 1
+      `,
+    )
+    .get(country) as { currency: string } | undefined;
+
   return {
     country,
+    currency: dominantCurrency?.currency ?? "USD",
     headcount: summary.headcount,
     minSalary: summary.minSalary,
     maxSalary: summary.maxSalary,
@@ -139,9 +153,23 @@ export function getJobTitleSalaryInsights(
     return null;
   }
 
+  const dominantCurrency = db
+    .prepare(
+      `
+      SELECT currency
+      FROM employees
+      WHERE country = ? AND job_title = ?
+      GROUP BY currency
+      ORDER BY COUNT(*) DESC
+      LIMIT 1
+      `,
+    )
+    .get(country, jobTitle) as { currency: string } | undefined;
+
   return {
     country,
     jobTitle,
+    currency: dominantCurrency?.currency ?? "USD",
     headcount: row.headcount,
     averageSalary: row.averageSalary,
     minSalary: row.minSalary,

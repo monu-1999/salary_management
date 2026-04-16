@@ -1,0 +1,449 @@
+.page {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.backdropPattern {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 179, 71, 0.22), transparent 34%),
+    radial-gradient(circle at 86% 8%, rgba(23, 151, 162, 0.18), transparent 32%),
+    radial-gradient(circle at 50% 78%, rgba(30, 111, 206, 0.14), transparent 38%);
+}
+
+.hero {
+  margin-bottom: 1.6rem;
+  opacity: 0;
+  animation: riseIn 460ms ease-out forwards;
+}
+
+.kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: #0f7a84;
+  font-size: 0.75rem;
+}
+
+.title {
+  margin: 0.2rem 0 0.5rem;
+  font-family: var(--font-display), "Trebuchet MS", sans-serif;
+  font-size: clamp(1.9rem, 4.1vw, 2.8rem);
+  line-height: 1.1;
+  color: #122034;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #324b66;
+  max-width: 65ch;
+}
+
+.alertError,
+.alertSuccess {
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+  margin: 0 0 1rem;
+  font-weight: 600;
+}
+
+.alertError {
+  background: #ffe4e3;
+  border: 1px solid #f6b7b4;
+  color: #8f2220;
+}
+
+.alertSuccess {
+  background: #e4f9ec;
+  border: 1px solid #a8e7c0;
+  color: #0f5d32;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: start;
+}
+
+.spanTwo {
+  grid-column: span 2;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 34px rgba(18, 32, 52, 0.08);
+  backdrop-filter: blur(9px);
+  border-radius: 18px;
+  padding: 1rem;
+  opacity: 0;
+  animation: riseIn 460ms ease-out forwards;
+}
+
+.grid .card:nth-child(1) {
+  animation-delay: 70ms;
+}
+
+.grid .card:nth-child(2) {
+  animation-delay: 130ms;
+}
+
+.grid .card:nth-child(3) {
+  animation-delay: 190ms;
+}
+
+.grid .card:nth-child(4) {
+  animation-delay: 250ms;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.cardHeader h2 {
+  margin: 0;
+  font-family: var(--font-display), "Trebuchet MS", sans-serif;
+  color: #15243a;
+  font-size: 1.2rem;
+}
+
+.secondaryButton,
+.primaryButton,
+.actions button,
+.pagination button {
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.secondaryButton,
+.actions button,
+.pagination button {
+  background: #e8eff8;
+  color: #1f3555;
+  padding: 0.45rem 0.65rem;
+}
+
+.secondaryButton:hover,
+.actions button:hover,
+.pagination button:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.98);
+}
+
+.primaryButton {
+  background: linear-gradient(112deg, #0f7a84, #1f4ea3);
+  color: white;
+  padding: 0.7rem 0.9rem;
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(18, 56, 110, 0.3);
+}
+
+.primaryButton:disabled,
+.pagination button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.deleteButton {
+  background: #ffd8d6 !important;
+  color: #922d2a !important;
+}
+
+.filters,
+.insightFilters {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 0.8rem;
+}
+
+.filters label,
+.form label,
+.insightFilters label {
+  display: grid;
+  gap: 0.35rem;
+  color: #334d6b;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.filters input,
+.filters select,
+.form input,
+.form select,
+.insightFilters select {
+  width: 100%;
+  border: 1px solid #c7d6ea;
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  background: #f7fafd;
+  font-size: 0.93rem;
+  color: #1a2f4c;
+}
+
+.filters input:focus,
+.filters select:focus,
+.form input:focus,
+.form select:focus,
+.insightFilters select:focus {
+  outline: 2px solid #9bd0dd;
+  border-color: #7cb8d1;
+}
+
+.tableWrap {
+  border-radius: 12px;
+  overflow: auto;
+  border: 1px solid #d9e5f4;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+  background: #fbfdff;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.68rem 0.6rem;
+  border-bottom: 1px solid #e4edf8;
+  font-size: 0.88rem;
+}
+
+.table th {
+  color: #234066;
+  font-size: 0.77rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #f0f6ff;
+}
+
+.emptyCell {
+  text-align: center !important;
+  color: #607794;
+  padding: 1rem !important;
+}
+
+.actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  color: #425a79;
+  font-weight: 700;
+  font-size: 0.83rem;
+}
+
+.pagination div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.68rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form .primaryButton {
+  grid-column: span 2;
+  margin-top: 0.2rem;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-bottom: 0.85rem;
+}
+
+.metricsGrid > div {
+  border-radius: 12px;
+  padding: 0.66rem;
+  background: #f4f9fe;
+  border: 1px solid #d7e7f8;
+}
+
+.metricsGrid p {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #4b678a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metricsGrid strong {
+  margin-top: 0.2rem;
+  display: block;
+  color: #132743;
+  font-size: 0.95rem;
+}
+
+.jobInsightCard {
+  border-radius: 12px;
+  border: 1px solid #ccdfef;
+  background: #edf8ff;
+  padding: 0.72rem;
+  margin-bottom: 0.8rem;
+}
+
+.jobInsightCard h3 {
+  margin: 0 0 0.3rem;
+  color: #18355a;
+}
+
+.jobInsightCard p {
+  margin: 0;
+  color: #34567e;
+  font-size: 0.86rem;
+}
+
+.insightDetailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.insightDetailsGrid section {
+  border-radius: 12px;
+  border: 1px solid #d9e8f8;
+  background: #f9fcff;
+  padding: 0.65rem;
+}
+
+.insightDetailsGrid h3 {
+  margin: 0 0 0.45rem;
+  font-size: 0.9rem;
+  color: #1f3c60;
+}
+
+.insightDetailsGrid ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.42rem;
+}
+
+.insightDetailsGrid li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.83rem;
+  color: #335071;
+}
+
+.insightDetailsGrid strong {
+  color: #132743;
+  text-align: right;
+}
+
+.detailList {
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.detailList div {
+  border-radius: 10px;
+  padding: 0.62rem;
+  border: 1px solid #dae8f8;
+  background: #f6fbff;
+}
+
+.detailList dt {
+  margin: 0 0 0.2rem;
+  color: #4d6888;
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.detailList dd {
+  margin: 0;
+  color: #152a46;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.emptyState {
+  color: #516b8b;
+  margin: 0;
+}
+
+@media (max-width: 1120px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .spanTwo {
+    grid-column: auto;
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding: 1.4rem 0.75rem 2rem;
+  }
+
+  .filters,
+  .insightFilters,
+  .form,
+  .metricsGrid,
+  .insightDetailsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .form .primaryButton {
+    grid-column: auto;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

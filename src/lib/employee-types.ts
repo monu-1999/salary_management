@@ -51,6 +51,7 @@ export interface PagedEmployees {
 
 export interface CountrySalaryInsights {
   country: string;
+  currency: string;
   headcount: number;
   minSalary: number;
   maxSalary: number;
@@ -72,6 +73,7 @@ export interface CountrySalaryInsights {
 export interface JobTitleSalaryInsights {
   country: string;
   jobTitle: string;
+  currency: string;
   headcount: number;
   averageSalary: number;
   minSalary: number;

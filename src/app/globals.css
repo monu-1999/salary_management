@@ -1,14 +1,30 @@
 :root {
-  color-scheme: light;
+  --color-bg: #eef4fb;
+  --color-text: #172942;
+  --font-body: "Avenir Next", "Segoe UI", sans-serif;
+  --font-display: "Trebuchet MS", "Gill Sans", sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #f2f5fa;
-  color: #14223a;
+  min-height: 100vh;
+  color: var(--color-text);
+  font-family: var(--font-body), "Segoe UI", sans-serif;
+  background:
+    linear-gradient(160deg, #f8fbff 0%, #eff4fb 46%, #edf7f3 100%),
+    var(--color-bg);
+}
+
+a {
+  color: inherit;
 }
